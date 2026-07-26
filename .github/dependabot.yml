@@ -1,19 +1,11 @@
 version: 2
 updates:
+  # Single workspace-root entry: merchant/, explorer/web/, and explorer/api/
+  # share one pnpm-lock.yaml. Per-subdirectory entries fight over that lockfile
+  # (each PR updates its own package.json without seeing the others), so
+  # Dependabot must be pointed at the workspace root to update it correctly.
   - package-ecosystem: "npm"
-    directory: "/merchant"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-
-  - package-ecosystem: "npm"
-    directory: "/explorer/web"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-
-  - package-ecosystem: "npm"
-    directory: "/explorer/api"
+    directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
