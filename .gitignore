@@ -35,3 +35,6 @@ out/
 .turbo/
 coverage/
 *.tsbuildinfo
+
+# Next.js
+next-env.d.ts
