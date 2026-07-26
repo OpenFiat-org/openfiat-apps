@@ -1,0 +1,4 @@
+packages:
+  - "merchant"
+  - "explorer/web"
+  - "explorer/api"

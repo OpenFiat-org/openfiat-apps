@@ -1,0 +1,13 @@
+[package]
+name = "openfiat-explorer-indexer"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "Indexer for the OpenFiat explorer: consumes network events and produces queryable state."
+repository = "https://github.com/OpenFiat-org/openfiat-explorer"
+
+[[bin]]
+name = "openfiat-explorer-indexer"
+path = "src/main.rs"
+
+[dependencies]
