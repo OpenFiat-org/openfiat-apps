@@ -19,19 +19,20 @@ path = "src/main.rs"
 # a git dependency (pinned to a specific commit, bumped by hand as
 # openfiat-core moves) rather than a path dependency, so this repo stays
 # independently cloneable without assuming a sibling checkout layout.
-openfiat-types = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-types" }
-openfiat-crypto = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-crypto" }
-openfiat-network = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-network" }
-openfiat-gossip = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-gossip" }
-openfiat-serialization = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-serialization" }
-openfiat-storage = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-storage" }
-openfiat-advertisements = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-advertisements" }
-openfiat-reservations = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-reservations" }
-openfiat-settlement = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-settlement" }
-openfiat-trade = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-trade" }
-openfiat-disputes = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-disputes" }
-openfiat-governance = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-governance" }
-openfiat-registry = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-registry" }
+openfiat-types = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-types" }
+openfiat-crypto = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-crypto" }
+openfiat-network = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-network" }
+openfiat-gossip = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-gossip" }
+openfiat-serialization = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-serialization" }
+openfiat-storage = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-storage" }
+openfiat-advertisements = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-advertisements" }
+openfiat-reservations = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-reservations" }
+openfiat-settlement = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-settlement" }
+openfiat-trade = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-trade" }
+openfiat-disputes = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-disputes" }
+openfiat-governance = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-governance" }
+openfiat-registry = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-registry" }
+openfiat-wallet = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "c5ef10951275d34aeddaee98a2a73afc3f8cab04", package = "openfiat-wallet" }
 tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "net", "sync", "time"] }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"

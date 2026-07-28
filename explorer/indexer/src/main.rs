@@ -2,28 +2,48 @@
 //! serves the queryable state `explorer/api` (Phase 9) reads.
 //!
 //! Configured entirely by environment variables for now — a proper CLI
-//! (config file, persisted keypair) is `openfiat-cli`'s composition-root
-//! concern (Phase 12 territory), not something to duplicate here ahead
-//! of that design settling.
+//! (config file) is `openfiat-cli`'s composition-root concern (Phase 12
+//! territory), not something to duplicate here ahead of that design
+//! settling.
 
 use openfiat_explorer_indexer::{IndexerConfig, server, spawn};
 use openfiat_storage::mem::MemoryStore;
+use openfiat_wallet::Wallet;
+
+/// This node's identity: a Solana CLI-format wallet.json, the same file
+/// `solana-keygen new` produces, at `INDEXER_WALLET_PATH` (defaulting to
+/// Solana CLI's own convention, `~/.config/solana/id.json`) — so an
+/// operator authenticates this node with the same wallet they already
+/// use for Solana tooling, rather than a second, separate identity.
+fn load_or_generate_wallet() -> Wallet {
+    let path = std::env::var("INDEXER_WALLET_PATH").unwrap_or_else(|_| {
+        let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+        format!("{home}/.config/solana/id.json")
+    });
+
+    match openfiat_wallet::solana_keyfile::load(&path) {
+        Ok(wallet) => {
+            println!("openfiat-explorer-indexer: loaded node identity from {path}");
+            wallet
+        }
+        Err(err) => {
+            // Falling back rather than failing hard: an indexer isn't a
+            // service other nodes need to reconnect to by a stable
+            // identity, so a missing wallet file is a warning, not fatal
+            // — but if the operator *did* mean to authenticate with a
+            // real wallet, this is loud enough to notice.
+            eprintln!("openfiat-explorer-indexer: no usable wallet at {path} ({err}), generating a fresh identity for this run");
+            Wallet::generate()
+        }
+    }
+}
 
 #[tokio::main]
 async fn main() {
     let listen_addr = std::env::var("INDEXER_LISTEN_ADDR").unwrap_or_else(|_| "/ip4/0.0.0.0/udp/4001/quic-v1".to_string());
     let bootstrap_peers = std::env::var("INDEXER_BOOTSTRAP_PEERS").unwrap_or_default().split(',').filter(|s| !s.is_empty()).map(str::to_string).collect();
     let http_addr = std::env::var("INDEXER_HTTP_ADDR").unwrap_or_else(|_| "0.0.0.0:8081".to_string());
-
-    let mut keypair_seed = [0u8; 32];
-    if let Ok(seed_str) = std::env::var("INDEXER_KEYPAIR_SEED") {
-        let bytes = seed_str.as_bytes();
-        keypair_seed[..bytes.len().min(32)].copy_from_slice(&bytes[..bytes.len().min(32)]);
-    } else {
-        // A fresh random identity each run is fine for an indexer (it's
-        // not a service other nodes need to reconnect to by identity).
-        keypair_seed = openfiat_crypto::Keypair::generate().seed();
-    }
+    let keypair_seed = load_or_generate_wallet().seed();
 
     println!("openfiat-explorer-indexer {} — listening for gossip on {listen_addr}, serving HTTP on {http_addr}", openfiat_explorer_indexer::version());
 
