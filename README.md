@@ -14,6 +14,16 @@
 
 ---
 
+> **This repository is not under active development.** The apps here
+> (merchant dashboard, network explorer) were an early scaffold and are
+> kept for reference, but new frontend/design work is concentrated in
+> [`openfiat-app`](https://github.com/OpenFiat-org/openfiat-app), which
+> already has the intended design, user flow, and data rendering. The
+> Rust `explorer/indexer` is real and tested against
+> [`openfiat-core`](https://github.com/OpenFiat-org/openfiat-core), but
+> `explorer/api`/`explorer/web` remain scaffolding. See each package's own
+> README for its current status.
+
 ## About
 
 `openfiat-apps` is part of the [OpenFiat](https://github.com/OpenFiat-org)
