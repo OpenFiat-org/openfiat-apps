@@ -8,8 +8,8 @@
 
 use openfiat_advertisements::AdvertisementRegistry;
 use openfiat_disputes::DisputeRegistry;
-use openfiat_governance::GovernanceRegistry;
 use openfiat_gossip::GossipService;
+use openfiat_governance::GovernanceRegistry;
 use openfiat_registry::Registry as ServiceRegistry;
 use openfiat_reservations::ReservationRegistry;
 use openfiat_settlement::SettlementRegistry;
@@ -36,13 +36,27 @@ impl<S: KvStore + 'static> IndexedState<S> {
     pub fn new(store: Rc<S>) -> Self {
         let services = Rc::new(ServiceRegistry::new(Rc::clone(&store)));
         let advertisements = Rc::new(AdvertisementRegistry::new(Rc::clone(&store)));
-        let reservations = Rc::new(ReservationRegistry::new(Rc::clone(&store), Rc::clone(&advertisements)));
+        let reservations = Rc::new(ReservationRegistry::new(
+            Rc::clone(&store),
+            Rc::clone(&advertisements),
+        ));
         let settlements = Rc::new(SettlementRegistry::new(Rc::clone(&store)));
-        let disputes = Rc::new(DisputeRegistry::new(Rc::clone(&store), Rc::clone(&settlements)));
+        let disputes = Rc::new(DisputeRegistry::new(
+            Rc::clone(&store),
+            Rc::clone(&settlements),
+        ));
         let trades = TradeView::new(Rc::clone(&reservations), Rc::clone(&settlements));
         let governance = Rc::new(GovernanceRegistry::new(Rc::clone(&store)));
 
-        Self { advertisements, reservations, settlements, trades, disputes, governance, services }
+        Self {
+            advertisements,
+            reservations,
+            settlements,
+            trades,
+            disputes,
+            governance,
+            services,
+        }
     }
 
     /// Registers every registry's `apply_event` as a handler on the

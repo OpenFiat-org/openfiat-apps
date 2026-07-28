@@ -25,8 +25,16 @@ async fn handle_health() -> &'static str {
     "ok"
 }
 
-async fn handle_trades(State(snapshot): State<SharedSnapshot>) -> axum::Json<Vec<crate::IndexedTrade>> {
-    axum::Json(snapshot.read().expect("indexer snapshot lock poisoned").trades.clone())
+async fn handle_trades(
+    State(snapshot): State<SharedSnapshot>,
+) -> axum::Json<Vec<crate::IndexedTrade>> {
+    axum::Json(
+        snapshot
+            .read()
+            .expect("indexer snapshot lock poisoned")
+            .trades
+            .clone(),
+    )
 }
 
 async fn handle_trade(State(snapshot): State<SharedSnapshot>, Path(id): Path<String>) -> Response {
@@ -37,11 +45,22 @@ async fn handle_trade(State(snapshot): State<SharedSnapshot>, Path(id): Path<Str
     }
 }
 
-async fn handle_proposals(State(snapshot): State<SharedSnapshot>) -> axum::Json<Vec<crate::IndexedProposal>> {
-    axum::Json(snapshot.read().expect("indexer snapshot lock poisoned").proposals.clone())
+async fn handle_proposals(
+    State(snapshot): State<SharedSnapshot>,
+) -> axum::Json<Vec<crate::IndexedProposal>> {
+    axum::Json(
+        snapshot
+            .read()
+            .expect("indexer snapshot lock poisoned")
+            .proposals
+            .clone(),
+    )
 }
 
-async fn handle_proposal(State(snapshot): State<SharedSnapshot>, Path(id): Path<String>) -> Response {
+async fn handle_proposal(
+    State(snapshot): State<SharedSnapshot>,
+    Path(id): Path<String>,
+) -> Response {
     let view = snapshot.read().expect("indexer snapshot lock poisoned");
     match view.proposals.iter().find(|proposal| proposal.id == id) {
         Some(proposal) => axum::Json(proposal.clone()).into_response(),
@@ -49,16 +68,38 @@ async fn handle_proposal(State(snapshot): State<SharedSnapshot>, Path(id): Path<
     }
 }
 
-async fn handle_providers(State(snapshot): State<SharedSnapshot>) -> axum::Json<Vec<crate::IndexedProvider>> {
-    axum::Json(snapshot.read().expect("indexer snapshot lock poisoned").providers.clone())
+async fn handle_providers(
+    State(snapshot): State<SharedSnapshot>,
+) -> axum::Json<Vec<crate::IndexedProvider>> {
+    axum::Json(
+        snapshot
+            .read()
+            .expect("indexer snapshot lock poisoned")
+            .providers
+            .clone(),
+    )
 }
 
-async fn handle_regions(State(snapshot): State<SharedSnapshot>) -> axum::Json<Vec<crate::RegionStat>> {
-    axum::Json(snapshot.read().expect("indexer snapshot lock poisoned").regions.clone())
+async fn handle_regions(
+    State(snapshot): State<SharedSnapshot>,
+) -> axum::Json<Vec<crate::RegionStat>> {
+    axum::Json(
+        snapshot
+            .read()
+            .expect("indexer snapshot lock poisoned")
+            .regions
+            .clone(),
+    )
 }
 
 async fn handle_stats(State(snapshot): State<SharedSnapshot>) -> axum::Json<crate::NetworkStats> {
-    axum::Json(snapshot.read().expect("indexer snapshot lock poisoned").stats.clone())
+    axum::Json(
+        snapshot
+            .read()
+            .expect("indexer snapshot lock poisoned")
+            .stats
+            .clone(),
+    )
 }
 
 #[cfg(test)]
@@ -72,7 +113,15 @@ mod tests {
     #[tokio::test]
     async fn health_returns_ok() {
         let snapshot: SharedSnapshot = Arc::new(RwLock::new(ViewSnapshot::default()));
-        let response = router(snapshot).oneshot(axum::http::Request::builder().uri("/health").body(axum::body::Body::empty()).unwrap()).await.unwrap();
+        let response = router(snapshot)
+            .oneshot(
+                axum::http::Request::builder()
+                    .uri("/health")
+                    .body(axum::body::Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
         assert_eq!(response.status(), axum::http::StatusCode::OK);
     }
 
@@ -92,7 +141,15 @@ mod tests {
             events: vec![],
         });
 
-        let response = router(snapshot).oneshot(axum::http::Request::builder().uri("/trades").body(axum::body::Body::empty()).unwrap()).await.unwrap();
+        let response = router(snapshot)
+            .oneshot(
+                axum::http::Request::builder()
+                    .uri("/trades")
+                    .body(axum::body::Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let trades: Vec<serde_json::Value> = serde_json::from_slice(&body).unwrap();
         assert_eq!(trades.len(), 1);
@@ -102,7 +159,15 @@ mod tests {
     #[tokio::test]
     async fn a_missing_trade_is_a_404() {
         let snapshot: SharedSnapshot = Arc::new(RwLock::new(ViewSnapshot::default()));
-        let response = router(snapshot).oneshot(axum::http::Request::builder().uri("/trades/does-not-exist").body(axum::body::Body::empty()).unwrap()).await.unwrap();
+        let response = router(snapshot)
+            .oneshot(
+                axum::http::Request::builder()
+                    .uri("/trades/does-not-exist")
+                    .body(axum::body::Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
         assert_eq!(response.status(), axum::http::StatusCode::NOT_FOUND);
     }
 }

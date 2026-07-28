@@ -43,7 +43,10 @@ pub struct IndexerConfig {
 /// `build_store` runs *inside* that thread — `S` never needs to be
 /// `Send`, only the construction closure does (see `openfiat-rpc`'s
 /// `actor` module for the same reasoning in full).
-pub fn spawn<S>(config: IndexerConfig, build_store: impl FnOnce() -> S + Send + 'static) -> (SharedSnapshot, Multiaddr)
+pub fn spawn<S>(
+    config: IndexerConfig,
+    build_store: impl FnOnce() -> S + Send + 'static,
+) -> (SharedSnapshot, Multiaddr)
 where
     S: KvStore + 'static,
 {
@@ -52,15 +55,24 @@ where
     let (listen_addr_tx, listen_addr_rx) = std::sync::mpsc::channel();
 
     std::thread::spawn(move || {
-        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("failed to start the indexer's runtime");
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .expect("failed to start the indexer's runtime");
         runtime.block_on(async move {
             let keypair = Keypair::from_seed(config.keypair_seed);
             let mut node = Node::new(&keypair).expect("failed to construct the libp2p node");
-            let requested_addr = config.listen_addr.parse().expect("invalid listen_addr multiaddr");
-            node.listen_on(requested_addr).expect("failed to start listening");
+            let requested_addr = config
+                .listen_addr
+                .parse()
+                .expect("invalid listen_addr multiaddr");
+            node.listen_on(requested_addr)
+                .expect("failed to start listening");
 
             let actual_addr = loop {
-                if let libp2p::swarm::SwarmEvent::NewListenAddr { address, .. } = node.next_event().await {
+                if let libp2p::swarm::SwarmEvent::NewListenAddr { address, .. } =
+                    node.next_event().await
+                {
                     break address;
                 }
             };
@@ -68,7 +80,13 @@ where
 
             let store = Rc::new(build_store());
             let event_store = EventStore::new(Rc::clone(&store));
-            let mut gossip = openfiat_gossip::GossipService::new(node, event_store, keypair, vec![], Subscription::All);
+            let mut gossip = openfiat_gossip::GossipService::new(
+                node,
+                event_store,
+                keypair,
+                vec![],
+                Subscription::All,
+            );
             for (peer_id, public_key) in config.known_peer_keys {
                 gossip.register_peer_key(peer_id, public_key);
             }
@@ -90,11 +108,17 @@ where
         });
     });
 
-    let listen_addr = listen_addr_rx.recv().expect("indexer actor thread stopped before it started listening");
+    let listen_addr = listen_addr_rx
+        .recv()
+        .expect("indexer actor thread stopped before it started listening");
     (snapshot, listen_addr)
 }
 
-fn publish<S: KvStore>(snapshot: &SharedSnapshot, state: &IndexedState<S>, gossip: &openfiat_gossip::GossipService<Rc<S>>) {
+fn publish<S: KvStore>(
+    snapshot: &SharedSnapshot,
+    state: &IndexedState<S>,
+    gossip: &openfiat_gossip::GossipService<Rc<S>>,
+) {
     let fresh = ViewSnapshot {
         trades: views::trades(state),
         proposals: views::proposals(state),
@@ -112,8 +136,15 @@ mod tests {
 
     #[tokio::test]
     async fn spawns_and_publishes_an_initial_empty_snapshot() {
-        let (snapshot, _listen_addr) =
-            spawn(IndexerConfig { keypair_seed: [1; 32], listen_addr: "/ip4/127.0.0.1/udp/0/quic-v1".to_string(), bootstrap_peers: vec![], known_peer_keys: vec![] }, MemoryStore::new);
+        let (snapshot, _listen_addr) = spawn(
+            IndexerConfig {
+                keypair_seed: [1; 32],
+                listen_addr: "/ip4/127.0.0.1/udp/0/quic-v1".to_string(),
+                bootstrap_peers: vec![],
+                known_peer_keys: vec![],
+            },
+            MemoryStore::new,
+        );
 
         // Give the actor thread a moment to publish its first snapshot.
         tokio::time::sleep(std::time::Duration::from_millis(50)).await;

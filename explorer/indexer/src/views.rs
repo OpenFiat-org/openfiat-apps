@@ -65,11 +65,15 @@ pub fn trades<S: KvStore>(state: &IndexedState<S>) -> Vec<IndexedTrade> {
         .all()
         .into_iter()
         .map(|trade| {
-            let advertisement = state.advertisements.get(&trade.reservation.advertisement_id);
+            let advertisement = state
+                .advertisements
+                .get(&trade.reservation.advertisement_id);
             let (asset, fiat_currency, price) = match &advertisement {
                 Some(ad) => {
                     let price = match ad.pricing {
-                        openfiat_advertisements::PricingModel::Fixed { price } => Some(price.to_string()),
+                        openfiat_advertisements::PricingModel::Fixed { price } => {
+                            Some(price.to_string())
+                        }
                         openfiat_advertisements::PricingModel::Floating { .. } => None,
                     };
                     (ad.asset.clone(), ad.fiat_currency.clone(), price)
@@ -77,16 +81,35 @@ pub fn trades<S: KvStore>(state: &IndexedState<S>) -> Vec<IndexedTrade> {
                 None => (String::new(), String::new(), None),
             };
 
-            let mut events = vec![TradeEvent { time_ms: trade.reservation.requested_at.as_millis(), event_type: "ReservationRequested".to_string() }];
+            let mut events = vec![TradeEvent {
+                time_ms: trade.reservation.requested_at.as_millis(),
+                event_type: "ReservationRequested".to_string(),
+            }];
             let (merchant, buyer, amount) = match &trade.settlement {
                 Some(settlement) => {
-                    events.push(TradeEvent { time_ms: settlement.created_at.as_millis(), event_type: "SettlementInitiated".to_string() });
+                    events.push(TradeEvent {
+                        time_ms: settlement.created_at.as_millis(),
+                        event_type: "SettlementInitiated".to_string(),
+                    });
                     if settlement.state != SettlementState::AwaitingPayment {
-                        events.push(TradeEvent { time_ms: settlement.updated_at.as_millis(), event_type: format!("Settlement{:?}", settlement.state) });
+                        events.push(TradeEvent {
+                            time_ms: settlement.updated_at.as_millis(),
+                            event_type: format!("Settlement{:?}", settlement.state),
+                        });
                     }
-                    (peer_id_string(&settlement.seller), peer_id_string(&settlement.buyer), settlement.amount.to_string())
+                    (
+                        peer_id_string(&settlement.seller),
+                        peer_id_string(&settlement.buyer),
+                        settlement.amount.to_string(),
+                    )
                 }
-                None => (advertisement.map(|ad| peer_id_string(&ad.merchant)).unwrap_or_default(), peer_id_string(&trade.reservation.requester), trade.reservation.amount.to_string()),
+                None => (
+                    advertisement
+                        .map(|ad| peer_id_string(&ad.merchant))
+                        .unwrap_or_default(),
+                    peer_id_string(&trade.reservation.requester),
+                    trade.reservation.amount.to_string(),
+                ),
             };
 
             IndexedTrade {
@@ -191,7 +214,13 @@ pub fn regions<S: KvStore>(state: &IndexedState<S>) -> Vec<RegionStat> {
             *counts.entry(region).or_default() += 1;
         }
     }
-    counts.into_iter().map(|(region, provider_count)| RegionStat { region, provider_count }).collect()
+    counts
+        .into_iter()
+        .map(|(region, provider_count)| RegionStat {
+            region,
+            provider_count,
+        })
+        .collect()
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
@@ -209,11 +238,34 @@ pub fn stats<S: KvStore>(state: &IndexedState<S>, gossip: &GossipService<Rc<S>>)
     let providers = state.services.all();
     NetworkStats {
         connected_peers: gossip.connected_peer_count(),
-        providers_online: providers.iter().filter(|p| p.health == HealthState::Online).count(),
+        providers_online: providers
+            .iter()
+            .filter(|p| p.health == HealthState::Online)
+            .count(),
         providers_total: providers.len(),
-        open_trades: state.trades.all().iter().filter(|t| !matches!(t.status(), TradeStatus::Completed | TradeStatus::Rejected | TradeStatus::Cancelled)).count(),
-        open_disputes: state.disputes.all().iter().filter(|d| d.status != DisputeStatus::Resolved).count(),
-        open_proposals: state.governance.all().iter().filter(|p| p.status == ProposalStatus::Voting).count(),
+        open_trades: state
+            .trades
+            .all()
+            .iter()
+            .filter(|t| {
+                !matches!(
+                    t.status(),
+                    TradeStatus::Completed | TradeStatus::Rejected | TradeStatus::Cancelled
+                )
+            })
+            .count(),
+        open_disputes: state
+            .disputes
+            .all()
+            .iter()
+            .filter(|d| d.status != DisputeStatus::Resolved)
+            .count(),
+        open_proposals: state
+            .governance
+            .all()
+            .iter()
+            .filter(|p| p.status == ProposalStatus::Voting)
+            .count(),
         protocol_version: env!("CARGO_PKG_VERSION").to_string(),
     }
 }

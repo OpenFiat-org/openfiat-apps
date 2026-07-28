@@ -32,7 +32,9 @@ fn load_or_generate_wallet() -> Wallet {
             // identity, so a missing wallet file is a warning, not fatal
             // — but if the operator *did* mean to authenticate with a
             // real wallet, this is loud enough to notice.
-            eprintln!("openfiat-explorer-indexer: no usable wallet at {path} ({err}), generating a fresh identity for this run");
+            eprintln!(
+                "openfiat-explorer-indexer: no usable wallet at {path} ({err}), generating a fresh identity for this run"
+            );
             Wallet::generate()
         }
     }
@@ -40,12 +42,22 @@ fn load_or_generate_wallet() -> Wallet {
 
 #[tokio::main]
 async fn main() {
-    let listen_addr = std::env::var("INDEXER_LISTEN_ADDR").unwrap_or_else(|_| "/ip4/0.0.0.0/udp/4001/quic-v1".to_string());
-    let bootstrap_peers = std::env::var("INDEXER_BOOTSTRAP_PEERS").unwrap_or_default().split(',').filter(|s| !s.is_empty()).map(str::to_string).collect();
-    let http_addr = std::env::var("INDEXER_HTTP_ADDR").unwrap_or_else(|_| "0.0.0.0:8081".to_string());
+    let listen_addr = std::env::var("INDEXER_LISTEN_ADDR")
+        .unwrap_or_else(|_| "/ip4/0.0.0.0/udp/4001/quic-v1".to_string());
+    let bootstrap_peers = std::env::var("INDEXER_BOOTSTRAP_PEERS")
+        .unwrap_or_default()
+        .split(',')
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+        .collect();
+    let http_addr =
+        std::env::var("INDEXER_HTTP_ADDR").unwrap_or_else(|_| "0.0.0.0:8081".to_string());
     let keypair_seed = load_or_generate_wallet().seed();
 
-    println!("openfiat-explorer-indexer {} — listening for gossip on {listen_addr}, serving HTTP on {http_addr}", openfiat_explorer_indexer::version());
+    println!(
+        "openfiat-explorer-indexer {} — listening for gossip on {listen_addr}, serving HTTP on {http_addr}",
+        openfiat_explorer_indexer::version()
+    );
 
     // TODO(rocksdb): swap `MemoryStore` for `openfiat_database::Database`
     // once this binary's deployment story (a persistent data directory)
@@ -56,9 +68,21 @@ async fn main() {
     // will reject every event until openfiat-discovery's peer exchange
     // (not wired into this binary yet) or an explicit allowlist populates
     // it — see IndexerConfig's own doc.
-    let (snapshot, actual_listen_addr) = spawn(IndexerConfig { keypair_seed, listen_addr, bootstrap_peers, known_peer_keys: vec![] }, MemoryStore::new);
+    let (snapshot, actual_listen_addr) = spawn(
+        IndexerConfig {
+            keypair_seed,
+            listen_addr,
+            bootstrap_peers,
+            known_peer_keys: vec![],
+        },
+        MemoryStore::new,
+    );
     println!("openfiat-explorer-indexer listening at {actual_listen_addr}");
 
-    let listener = tokio::net::TcpListener::bind(&http_addr).await.expect("failed to bind the indexer's HTTP listener");
-    axum::serve(listener, server::router(snapshot)).await.expect("indexer HTTP server failed");
+    let listener = tokio::net::TcpListener::bind(&http_addr)
+        .await
+        .expect("failed to bind the indexer's HTTP listener");
+    axum::serve(listener, server::router(snapshot))
+        .await
+        .expect("indexer HTTP server failed");
 }
