@@ -4,10 +4,42 @@ version = "0.1.0"
 edition = "2024"
 license = "Apache-2.0"
 description = "Indexer for the OpenFiat explorer: consumes network events and produces queryable state."
-repository = "https://github.com/OpenFiat-org/openfiat-explorer"
+repository = "https://github.com/OpenFiat-org/openfiat-apps"
+
+[lib]
+name = "openfiat_explorer_indexer"
+path = "src/lib.rs"
 
 [[bin]]
 name = "openfiat-explorer-indexer"
 path = "src/main.rs"
 
 [dependencies]
+# openfiat-core and openfiat-apps are separate, pre-1.0, co-evolving repos —
+# a git dependency (pinned to a specific commit, bumped by hand as
+# openfiat-core moves) rather than a path dependency, so this repo stays
+# independently cloneable without assuming a sibling checkout layout.
+openfiat-types = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-types" }
+openfiat-crypto = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-crypto" }
+openfiat-network = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-network" }
+openfiat-gossip = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-gossip" }
+openfiat-serialization = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-serialization" }
+openfiat-storage = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-storage" }
+openfiat-advertisements = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-advertisements" }
+openfiat-reservations = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-reservations" }
+openfiat-settlement = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-settlement" }
+openfiat-trade = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-trade" }
+openfiat-disputes = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-disputes" }
+openfiat-governance = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-governance" }
+openfiat-registry = { git = "https://github.com/OpenFiat-org/openfiat-core", rev = "8034ebd2753b4da24a4b8765d2c5df659c7c70da", package = "openfiat-registry" }
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "net", "sync", "time"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+axum = "0.8.9"
+base64 = "0.22"
+libp2p = { version = "0.56.0", features = ["request-response"] }
+
+[dev-dependencies]
+futures = { version = "0.3.33", default-features = false, features = ["std", "async-await"] }
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
