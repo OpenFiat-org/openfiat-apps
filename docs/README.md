@@ -1,6 +1,6 @@
 # openfiat-apps documentation
 
-Extended documentation for `openfiat-apps` lives here. High-level architecture and diagrams belong in this directory; user-facing docs are published to [docs.openfiat.org](https://github.com/OpenFiat-org/openfiat-docs).
+Extended documentation for `openfiat-apps` lives here. High-level architecture and diagrams belong in this directory; user-facing docs are published to [docs.openfiat.network](https://github.com/OpenFiat-org/openfiat-docs).
 
 ## Contents
 
