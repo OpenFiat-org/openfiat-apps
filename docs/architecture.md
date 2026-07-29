@@ -8,4 +8,4 @@ flowchart LR
     B --> C[Solana Settlement Layer]
 ```
 
-Describe major components, data flow, and external dependencies here as the implementation lands.
+This repository is not under active development (see the root [README](../README.md)), so this diagram was never filled in beyond the placeholder above. For the real, current architecture, see [`openfiat-app`](https://github.com/OpenFiat-org/openfiat-app) instead.
