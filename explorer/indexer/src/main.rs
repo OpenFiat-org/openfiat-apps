@@ -43,7 +43,9 @@ fn load_or_generate_wallet() -> Wallet {
 #[tokio::main]
 async fn main() {
     let listen_addr = std::env::var("INDEXER_LISTEN_ADDR")
-        .unwrap_or_else(|_| "/ip4/0.0.0.0/udp/4001/quic-v1".to_string());
+        // 4002, not 4001: the indexer joins gossip as its own libp2p peer, so
+        // on a host that also runs a node the two would fight over 4001/udp.
+        .unwrap_or_else(|_| "/ip4/0.0.0.0/udp/4002/quic-v1".to_string());
     let bootstrap_peers = std::env::var("INDEXER_BOOTSTRAP_PEERS")
         .unwrap_or_default()
         .split(',')
@@ -51,7 +53,7 @@ async fn main() {
         .map(str::to_string)
         .collect();
     let http_addr =
-        std::env::var("INDEXER_HTTP_ADDR").unwrap_or_else(|_| "0.0.0.0:8081".to_string());
+        std::env::var("INDEXER_HTTP_ADDR").unwrap_or_else(|_| "0.0.0.0:7090".to_string());
     let keypair_seed = load_or_generate_wallet().seed();
 
     println!(

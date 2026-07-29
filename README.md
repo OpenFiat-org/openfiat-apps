@@ -58,9 +58,17 @@ For the full protocol motivation and design, see the
 
 ```bash
 pnpm install
-pnpm --filter @openfiat/explorer-api dev &   # explorer backend on :8080
+pnpm --filter @openfiat/explorer-api dev &   # explorer backend on :7091
 pnpm --filter @openfiat/explorer-web dev &   # explorer frontend on :3000
-pnpm --filter openfiat-merchant dev          # merchant dashboard on :3000 (pick a free port)
+pnpm --filter openfiat-merchant dev          # merchant dashboard on :3001
+```
+
+The explorer indexer is a separate Rust binary: it serves HTTP on `:7090`
+and joins gossip on `4002/udp`. Ports across the whole project are listed
+in [openfiat-infra's port allocation table](https://github.com/OpenFiat-org/openfiat-infra/blob/main/docs/ports.md).
+
+```bash
+cargo run -p openfiat-explorer-indexer
 ```
 
 
